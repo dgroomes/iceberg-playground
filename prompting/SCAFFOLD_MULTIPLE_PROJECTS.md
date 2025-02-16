@@ -58,3 +58,6 @@ complete content.
 CRITICAL REMINDER: I've tried this with you a few times. You have a tendency to suggest a few subprojects, but then
 only implement the 'basic' one. I need you to implement ALL of them. Never write the "END OF FILE" convention stuff even 
 if you feel compelled to. That just makes you confused.
+
+You have actually already implemented some of this and your response is in `generated-1.md`. You got through a `basic`
+and `append` subproject but you didn't do the `delete` and `overwrite` subprojects. Please finish it.
