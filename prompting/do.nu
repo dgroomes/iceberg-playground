@@ -44,12 +44,14 @@ def strip-license [] {
 
 export def ask-gemini [] {
     let r = gemini-generate (open --raw bundle.txt)
+    cd generated
     $r | to json | stash json
     $r.candidates.0.content.parts.0.text | stash md
 }
 
 export def count-tokens [] {
     let r = gemini-count-tokens (open --raw bundle.txt)
+    cd generated
     $r | to json | stash json
 }
 

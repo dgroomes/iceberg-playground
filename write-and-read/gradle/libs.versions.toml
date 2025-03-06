@@ -1,0 +1,20 @@
+[versions]
+iceberg = "1.8.0" # Apache Iceberg releases: https://iceberg.apache.org/releases
+
+# Stay in sync with whatever version of Hadoop is used by Iceberg. For example: https://github.com/apache/iceberg/blob/abb47830e7df7dc2ae93c74b0ad97f06cdd37aad/gradle/libs.versions.toml#L50
+hadoop = "3.4.1" # Apache Hadoop releases: https://hadoop.apache.org/releases.html
+
+# Stay in sync with whatever version of Parquet is used by Iceberg. For example: https://github.com/apache/iceberg/blob/abb47830e7df7dc2ae93c74b0ad97f06cdd37aad/gradle/libs.versions.toml#L76
+parquet = "1.15.0" # Apache Parquet releases: https://github.com/apache/parquet-java/releases
+
+slf4j = "2.0.16" # SLF4J releases: http://www.slf4j.org/news.html
+
+
+[libraries]
+iceberg-core = { module = "org.apache.iceberg:iceberg-core", version.ref = "iceberg" }
+iceberg-data = { module = "org.apache.iceberg:iceberg-data", version.ref = "iceberg" }
+iceberg-parquet = { module = "org.apache.iceberg:iceberg-parquet", version.ref = "iceberg" }
+hadoop = { module = "org.apache.hadoop:hadoop-client", version.ref = "hadoop" }
+parquet-column = { module = "org.apache.parquet:parquet-column", version.ref = "parquet" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
