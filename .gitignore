@@ -4,3 +4,4 @@ prompting/file-sets
 prompting/generated
 prompting/bundle.txt
 build/
+spark-warehouse/

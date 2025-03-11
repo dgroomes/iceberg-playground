@@ -1,6 +1,6 @@
 # write-and-read
 
-Write to and read from a table.
+Write to and read from an Iceberg table using the core Iceberg Java APIs.
 
 
 ## Overview
