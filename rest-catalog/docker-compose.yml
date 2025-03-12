@@ -1,0 +1,9 @@
+services:
+  rest:
+    # https://hub.docker.com/r/apache/iceberg-rest-fixture/tags
+    image: apache/iceberg-rest-fixture:1.8.1
+    ports:
+      - "8181:8181"
+    environment:
+      # This is interesting. This tells clients to use their local file system at '/tmp/warehouse' to write ata.
+      - CATALOG_WAREHOUSE=file:///tmp/warehouse/
