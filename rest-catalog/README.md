@@ -39,7 +39,7 @@ Follow these instructions to create and interact with Iceberg tables using the R
       ```
 8. Start a Spark shell session configured to use the REST catalog:
     * ```shell
-      SPARK_CONF_DIR=. SPARK_LOCAL_IP=127.0.0.1 spark-shell -i init.scala
+      SPARK_CONF_DIR=. SPARK_LOCAL_IP=127.0.0.1 AWS_REGION=us-east-1 spark-shell
       ```
     * Pay attention to the configurations expressed in environment variables and config files. This is important trivia
       to be familiar with.
