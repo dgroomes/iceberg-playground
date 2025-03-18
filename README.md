@@ -25,3 +25,10 @@ See the README in [write-and-read/](write-and-read/).
 Create and interact with Apache Iceberg tables from Spark shell.
 
 See the README in [spark-shell/](spark-shell/).
+
+
+### `rest-catalog/`
+
+Use the Iceberg REST catalog as an authoritative source for tracking a collection of tables and their current metadata.
+
+See the README in [rest-catalog/](rest-catalog/).
