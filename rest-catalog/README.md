@@ -8,15 +8,23 @@ Use the Iceberg REST catalog as an authoritative source for tracking a collectio
 This project showcases an Apache Iceberg data system featuring the Iceberg REST catalog, object storage, and the Spark
 shell.
 
-The [Iceberg REST catalog is described by an official OpenAPI specification](rest-spec). In this example, we'll use Spark
+The [Iceberg REST catalog is described by an official OpenAPI specification](rest-spec). In this example, we use Spark
 shell running on the host machine to connect to Docker containers running an Iceberg REST catalog server and a Minio
 server. This project is designed to make clear the essential components and configuration in a system using this
 technology stack.
 
+A catalog will typically be involved in a production Iceberg data system. In some systems, the catalog might be stored
+in the Hadoop file system. In other systems, the catalog might be in an RDBMS. The REST catalog is an abstraction over
+the underlying catalog implementation and it offers a familiar technology (HTTP/JSON) for enabling client software to
+interact with it. For example, DuckDB integrates with the Iceberg REST catalog and not the other catalog forms.
+
+This project also features S3-compatible object storage as the storage layer for Iceberg table metadata and table
+data. This is the typical choice for Iceberg data systems. 
+
 
 ## Instructions
 
-Follow these instructions to create and interact with Iceberg tables using the REST catalog with S3 storage.
+Follow these instructions to execute the demo.
 
 1. Pre-requisite: Java
     * I'm using Java 21
@@ -103,7 +111,7 @@ General clean-ups, TODOs and things I wish to implement for this subproject:
      term. This should be easy enough because there is a [`public static void main` method to do this in the Iceberg
      codebase](https://github.com/apache/iceberg/blob/fcea78fc3571063fa172edd96be00b1fab0ba68e/open-api/src/testFixtures/java/org/apache/iceberg/rest/RESTCatalogServer.java#L129).
    * DONE Try the REST catalog Docker container again
-* [ ] Add "overview" description and describe that S3 is in the picture as a way to store the data. A common storage
+* [x] DONE (ok enough) Add "overview" description and describe that S3 is in the picture as a way to store the data. A common storage
   point for both the catalog and tenant applications to access the data. Remember, the catalog does ACID stuff and
   writes the `metadata...json` files (90% sure). I think the tenant apps actually write the manifest files (80% sure)
   which confusingly write into the `metadata/` directory. The tenant apps of course read and write the `data/`
@@ -113,7 +121,7 @@ General clean-ups, TODOs and things I wish to implement for this subproject:
 * [ ] I really don't get the concurrency story when it comes to writing data. 
 * [ ] Consider broadening this subproject to just `catalog` and maybe use it as a vehicle for showing the concurrency
   story? (at least for writers; concurrency for readers I think is pretty straightforward but not sure)
-* [ ] IN PROGRESS Try to scale down the config to the bare minimum. This will be in part trial and error. I think there is more
+* [x] DONE Try to scale down the config to the bare minimum. This will be in part trial and error. I think there is more
   credential stuff I don't need, for example.
 * [ ] DuckDB. It newly has catalog support (for reads). It makes the story of the REST catalog more catalog: multiple
   tenants (Spark, DuckDB).
