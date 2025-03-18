@@ -1,18 +1,35 @@
 services:
-#  rest-catalog:
-#    image: apache/iceberg-rest-fixture:1.8.1 # https://hub.docker.com/r/apache/iceberg-rest-fixture
-#    ports:
-#      - "8181:8181"
-#    environment:
-#      AWS_ACCESS_KEY_ID: minioadmin
-#      AWS_SECRET_ACCESS_KEY: minioadmin
-#      AWS_REGION: us-east-1
-#      CATALOG_WAREHOUSE: s3://warehouse/
-#      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
-#      CATALOG_S3_ENDPOINT: http://localhost:9000
-#      CATALOG_S3_PATH_STYLE_ACCESS: 'true'
+  rest-catalog:
+    # Reference:
+    #  - https://github.com/apache/iceberg/blob/main/docker/iceberg-rest-fixture/README.md
+    #  - https://hub.docker.com/r/apache/iceberg-rest-fixture
+    image: apache/iceberg-rest-fixture:1.8.1
+    ports:
+      - "8181:8181"
+    environment:
+      # This part is opaque. You need to get the configuration just right, or else you're going to get long stack traces
+      # that often describe symptoms that are a few levels of indirection away from the actual problem.
+      #
+      # Unfortunately the Iceberg REST server "test fixture" distributed by the Iceberg project is not exactly
+      # documented. I've spent many hours of trial and error, breakpoint debugging, and LLM-asking to get this to work.
+      # The amount of indirection in the Iceberg AWS/S3 implementation plus the AWS S3 client library itself is a bit
+      # high, and especially hard for me because I don't have any S3 or AWS S3 client library experience.
+      #
+      # An important component of the configuration story is the way that the fixture translates environment variable
+      # names to configuration property keys: https://github.com/apache/iceberg/blob/c7f3919f847ae8c4f661299fd0a64db4dde1a583/open-api/src/testFixtures/java/org/apache/iceberg/rest/RCKUtils.java#L45
+      #
+      # Another important component are these properties: https://github.com/apache/iceberg/blob/c7f3919f847ae8c4f661299fd0a64db4dde1a583/aws/src/main/java/org/apache/iceberg/aws/s3/S3FileIOProperties.java#L232
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_REGION: us-east-1
+      CATALOG_WAREHOUSE: s3://warehouse
+      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
+      CATALOG_S3_ENDPOINT: http://minio:9000
+      # Do I need this? This isn't set in the Iceberg quickstart. I think I need it though...
+      CATALOG_S3_PATH__STYLE__ACCESS: 'true'
 
   minio:
+    # Note: this container sets up default credentials using the value 'minioadmin' (username, password, access key, secret key)
     image: minio/minio:RELEASE.2025-03-12T18-04-18Z # https://hub.docker.com/r/minio/minio
     ports:
       - "9000:9000"
