@@ -5,3 +5,4 @@ prompting/generated
 prompting/bundle.txt
 build/
 spark-warehouse/
+one-shot-test.scala
