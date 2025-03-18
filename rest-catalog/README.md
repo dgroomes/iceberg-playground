@@ -6,20 +6,21 @@ Use the Iceberg REST catalog as an authoritative source for tracking a collectio
 ## Overview
 
 This project showcases an Apache Iceberg data system featuring the Iceberg REST catalog, object storage, and the Spark
-shell.
+shell. Spark runs on the host machine and connects to the Iceberg REST catalog server and Minio servers running in
+Docker containers. The catalog server also interacts with the Minio server to query and update table metadata.
 
-The [Iceberg REST catalog is described by an official OpenAPI specification](rest-spec). In this example, we use Spark
-shell running on the host machine to connect to Docker containers running an Iceberg REST catalog server and a Minio
-server. This project is designed to make clear the essential components and configuration in a system using this
-technology stack.
-
-A catalog will typically be involved in a production Iceberg data system. In some systems, the catalog might be stored
-in the Hadoop file system. In other systems, the catalog might be in an RDBMS. The REST catalog is an abstraction over
-the underlying catalog implementation and it offers a familiar technology (HTTP/JSON) for enabling client software to
-interact with it. For example, DuckDB integrates with the Iceberg REST catalog and not the other catalog forms.
+An Iceberg catalog will typically be involved in a production Iceberg data system. In some systems, the catalog might
+be implemented in HDFS. In other systems, it might be in an RDBMS. The Iceberg REST catalog is an abstraction over the
+underlying catalog implementation and [it is described by an official OpenAPI specification](rest-spec). This
+specification and the ubiquity of HTTP/JSON makes it easier for other software to implement an integration with the
+Icerberg REST catalog. For example, [DuckDB integrates with the Iceberg REST catalog](https://github.com/duckdb/duckdb-iceberg/pull/98)
+and not the other catalog forms.
 
 This project also features S3-compatible object storage as the storage layer for Iceberg table metadata and table
-data. This is the typical choice for Iceberg data systems. 
+data. This is the typical choice for Iceberg data systems.
+
+This project is designed to make clear the essential components and configuration in a system using this
+technology stack.
 
 
 ## Instructions
@@ -44,6 +45,7 @@ Follow these instructions to execute the demo.
 7. Create a bucket to use for the warehouse:
     * ```shell
       mc mb local/warehouse
+      mc anonymous set public local/warehouse
       ```
 8. Start a Spark shell session configured to use the REST catalog:
     * ```shell
@@ -100,6 +102,52 @@ Follow these instructions to execute the demo.
       docker compose down
       ```
 
+      
+## BONUS: Use DuckDB to read data from the Iceberg table
+
+The advantage of a data system that "codes to common interfaces" like Apache Iceberg and S3 is that we can use a variety
+of different tools on the data. In this project, we've been using Spark (JVM) but now let's use DuckDB (C++). We can
+read the Iceberg table data in two styles: directly vs. catalog.
+
+With the following command, read directly from the Iceberg table without consulting the catalog. This is fine, but
+notice how we have to know the incidental 'warehouse/db' knowledge and also use the `unsafe_enable_version_guessing` setting.
+
+```shell
+duckdb -c "
+CREATE SECRET minio (
+    TYPE s3,
+    URL_STYLE 'path',
+    USE_SSL false,
+    ENDPOINT 'localhost:9000'
+);
+
+SET unsafe_enable_version_guessing = true;
+
+select * from iceberg_scan('s3://warehouse/db/messages')
+"
+```
+
+
+Now, let's try consulting the REST catalog:
+
+```shell
+duckdb -c "
+CREATE SECRET minio (
+    TYPE s3,
+    URL_STYLE 'path',
+    USE_SSL false,
+    ENDPOINT 'localhost:9000'
+);
+
+ATTACH '' as my_catalog (TYPE ICEBERG, ENDPOINT 'http://localhost:8181');
+
+select * from my_catalog.db.messages;
+"
+```
+
+A major advantage of using the catalog is that we can *discover* the tables and their metadata using a command like `show all tables;`
+This is an important everyday operation for an analyst or operator of the data system.
+
 
 ## Wish List
 
@@ -123,7 +171,7 @@ General clean-ups, TODOs and things I wish to implement for this subproject:
   story? (at least for writers; concurrency for readers I think is pretty straightforward but not sure)
 * [x] DONE Try to scale down the config to the bare minimum. This will be in part trial and error. I think there is more
   credential stuff I don't need, for example.
-* [ ] DuckDB. It newly has catalog support (for reads). It makes the story of the REST catalog more catalog: multiple
+* [x] DONE DuckDB. It newly has catalog support (for reads). It makes the story of the REST catalog more catalog: multiple
   tenants (Spark, DuckDB).
 * [ ] Wait a minute.... Did I make this much more complicated than it needs to be? I made the Iceberg REST catalog
   backed by S3 storage? That's what it looks like I did. But I didn't think that was possible. I thought you needed a
