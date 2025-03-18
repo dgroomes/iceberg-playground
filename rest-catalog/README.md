@@ -98,7 +98,6 @@ Follow these instructions to create and interact with Iceberg tables using the R
 General clean-ups, TODOs and things I wish to implement for this subproject:
 
 * [x] Showcase using the REST API to show the table metadata (added curl examples)
-* [ ] Clean up "where does the data go?" Figure out `CATALOG_WAREHOUSE`
 * [x] DONE (This should resolve the problem around locating 'where does the data go' ...) S3 with Minio
    * (UPDATE: This was NOT the problem) This is hard. Split-brain problem. And I need debugging so I'm going to run the catalog on my host for the short
      term. This should be easy enough because there is a [`public static void main` method to do this in the Iceberg
@@ -114,7 +113,7 @@ General clean-ups, TODOs and things I wish to implement for this subproject:
 * [ ] I really don't get the concurrency story when it comes to writing data. 
 * [ ] Consider broadening this subproject to just `catalog` and maybe use it as a vehicle for showing the concurrency
   story? (at least for writers; concurrency for readers I think is pretty straightforward but not sure)
-* [ ] Try to scale down the config to the bare minimum. This will be in part trial and error. I think there is more
+* [ ] IN PROGRESS Try to scale down the config to the bare minimum. This will be in part trial and error. I think there is more
   credential stuff I don't need, for example.
 * [ ] DuckDB. It newly has catalog support (for reads). It makes the story of the REST catalog more catalog: multiple
   tenants (Spark, DuckDB).
