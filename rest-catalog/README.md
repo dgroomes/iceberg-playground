@@ -39,10 +39,8 @@ Follow these instructions to create and interact with Iceberg tables using the R
       ```
 8. Start a Spark shell session configured to use the REST catalog:
     * ```shell
-      AWS_ACCESS_KEY_ID=minioadmin AWS_SECRET_ACCESS_KEY=minioadmin AWS_REGION=us-east-1 SPARK_CONF_DIR=. SPARK_LOCAL_IP=127.0.0.1 spark-shell --packages org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.8.1,org.apache.iceberg:iceberg-aws-bundle:1.8.1
+      SPARK_CONF_DIR=. SPARK_LOCAL_IP=127.0.0.1 spark-shell
       ```
-    * TODO Can we set the keys in `spark-defaults.conf`? This command is too noisy.
-    * TODO Can we set the jars in `spark-defaults.conf`? This command is too noisy.
 9. Define a table using the REST catalog:
     * ```scala
       spark.sql("""
