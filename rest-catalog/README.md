@@ -39,8 +39,10 @@ Follow these instructions to create and interact with Iceberg tables using the R
       ```
 8. Start a Spark shell session configured to use the REST catalog:
     * ```shell
-      SPARK_CONF_DIR=. SPARK_LOCAL_IP=127.0.0.1 spark-shell
+      SPARK_CONF_DIR=. SPARK_LOCAL_IP=127.0.0.1 spark-shell -i init.scala
       ```
+    * Pay attention to the configurations expressed in environment variables and config files. This is important trivia
+      to be familiar with.
 9. Define a table using the REST catalog:
     * ```scala
       spark.sql("""
@@ -68,8 +70,19 @@ Follow these instructions to create and interact with Iceberg tables using the R
     * Login with username `minioadmin` and password `minioadmin`
     * Navigate to the `warehouse` bucket to see the data and metadata files
     * You should see a directory structure that contains your table data and metadata
-13. View the table metadata via the REST API:
-    * TODO Move the later curl commands into this part.
+13. View the catalog and table metadata via the REST API:
+    * List all namespaces:
+    * ```shell
+      curl -s http://localhost:8181/v1/namespaces | jq
+      ```
+    * List all tables in a namespace:
+    * ```shell
+      curl -s http://localhost:8181/v1/namespaces/db/tables | jq
+      ```
+    * Get table metadata:
+    * ```shell
+      curl -s http://localhost:8181/v1/namespaces/db/tables/messages | jq
+      ```
 14. When you're done, quit the Spark shell:
     * ```scala
       :quit
@@ -78,37 +91,6 @@ Follow these instructions to create and interact with Iceberg tables using the R
     * ```shell
       docker compose down
       ```
-
-
-## Accessing the REST Catalog with curl
-
-One of the key benefits of the REST Catalog is the ability to interact with tables using HTTP requests. Here are some example curl commands:
-
-
-### Get catalog configuration
-```bash
-curl -s http://localhost:8181/v1/config | jq
-```
-
-
-### List all namespaces
-```bash
-curl -s http://localhost:8181/v1/namespaces | jq
-```
-
-
-### List all tables in a namespace
-```bash
-curl -s http://localhost:8181/v1/namespaces/db/tables | jq
-```
-
-
-### Get table metadata
-```bash
-curl -s http://localhost:8181/v1/namespaces/db/tables/messages | jq
-```
-
-For a complete list of REST API endpoints, see the [Iceberg REST catalog API Specification][rest-spec].
 
 
 ## Wish List
@@ -124,7 +106,7 @@ General clean-ups, TODOs and things I wish to implement for this subproject:
    * DONE Try the REST catalog Docker container again
 * [ ] Add "overview" description and describe that S3 is in the picture as a way to store the data. A common storage
   point for both the catalog and tenant applications to access the data. Remember, the catalog does ACID stuff and
-  writes the `metata...json` files (90% sure). I think the tenant apps actually write the manifest files (80% sure)
+  writes the `metadata...json` files (90% sure). I think the tenant apps actually write the manifest files (80% sure)
   which confusingly write into the `metadata/` directory. The tenant apps of course read and write the `data/`
   directory.
 * [ ] Really differentiate "metadata" that's stored by the catalog vs. "metadata" in the table's `metadata` directory.
