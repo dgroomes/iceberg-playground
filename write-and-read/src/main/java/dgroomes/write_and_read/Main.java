@@ -3,20 +3,20 @@ package dgroomes.write_and_read;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.iceberg.*;
 import org.apache.iceberg.catalog.TableIdentifier;
+import org.apache.iceberg.data.GenericAppenderFactory;
 import org.apache.iceberg.data.GenericRecord;
 import org.apache.iceberg.data.IcebergGenerics;
 import org.apache.iceberg.data.Record;
-import org.apache.iceberg.data.parquet.GenericParquetWriter;
 import org.apache.iceberg.hadoop.HadoopCatalog;
-import org.apache.iceberg.io.FileAppender;
-import org.apache.iceberg.parquet.Parquet;
+import org.apache.iceberg.io.OutputFileFactory;
+import org.apache.iceberg.io.UnpartitionedWriter;
+import org.apache.iceberg.io.WriteResult;
 import org.apache.iceberg.types.Types.IntegerType;
 import org.apache.iceberg.types.Types.NestedField;
 import org.apache.iceberg.types.Types.StringType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -67,29 +67,21 @@ public class Main {
                 record.copy(Map.of("id", 2, "observation", "The speed of light can circle the earth 7 times in a second"))
         );
 
-        // I'm building a new "file" which is part of the table? Usually, engines like Trino/Spark will do this and
-        // probably figure out the right file name to use? Some low level thing?
-        FileAppender<Record> appender = Parquet.write(
-                        org.apache.iceberg.Files.localOutput(new File(table.location(), "observations.parquet")))
-                .schema(schema)
-                .createWriterFunc(GenericParquetWriter::buildWriter)
-                .build();
+        var appenderFactory = new GenericAppenderFactory(table.schema());
+        var fileFactory = OutputFileFactory.builderFor(table, 0, 0).build();
 
-        try (var closeableAppender = appender) {
-            records.forEach(closeableAppender::add);
+        WriteResult result;
+        try (var writer = new UnpartitionedWriter<>(table.spec(), FileFormat.PARQUET, appenderFactory, fileFactory, table.io(), TableProperties.WRITE_TARGET_FILE_SIZE_BYTES_DEFAULT)) {
+            for (var r : records) writer.write(r);
+            result = writer.complete();
+        } catch (IOException e) {
+            log.error("Error writing records to table", e);
+            return;
         }
 
-        // This part I especially don't understand. Why am I repeating things (this was LLM generated... I need to just
-        // read the docs).
-        DataFile dataFile = DataFiles.builder(PartitionSpec.unpartitioned())
-                .withInputFile(org.apache.iceberg.Files.localInput(new File(table.location(), "observations.parquet")))
-                .withFileSizeInBytes(appender.length())
-                .withMetrics(appender.metrics())
-                .build();
-
-        AppendFiles appendFiles = table.newAppend();
-        appendFiles.appendFile(dataFile);
-        appendFiles.commit();
+        var append = table.newAppend();
+        for (var file : result.dataFiles()) append.appendFile(file);
+        append.commit(); // In a real scenario, you need to catch an exception in case the commit failed.
 
         log.info("Wrote {} rows to the table", records.size());
 
