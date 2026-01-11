@@ -11,7 +11,7 @@ Docker containers. The catalog server also interacts with the Minio server to qu
 
 An Iceberg catalog will typically be involved in a production Iceberg data system. In some systems, the catalog might
 be implemented in HDFS. In other systems, it might be in an RDBMS. The Iceberg REST catalog is an abstraction over the
-underlying catalog implementation and [it is described by an official OpenAPI specification](rest-spec). This
+underlying catalog implementation and [it is described by an official OpenAPI specification][rest-spec]. This
 specification and the ubiquity of HTTP/JSON makes it easier for other software to implement an integration with the
 Icerberg REST catalog. For example, [DuckDB integrates with the Iceberg REST catalog](https://github.com/duckdb/duckdb-iceberg/pull/98)
 and not the other catalog forms.
